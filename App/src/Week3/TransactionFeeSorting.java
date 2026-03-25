@@ -1,22 +1,24 @@
 import java.util.*;
 
-class Trade {
-    String id;
-    int volume;
+class Asset {
+    String name;
+    double returnRate;
+    double volatility;
 
-    Trade(String id, int volume) {
-        this.id = id;
-        this.volume = volume;
+    Asset(String name, double returnRate, double volatility) {
+        this.name = name;
+        this.returnRate = returnRate;
+        this.volatility = volatility;
     }
 
     public String toString() {
-        return id + ":" + volume;
+        return name + ":" + returnRate + "%";
     }
 }
 
-public class TransactionFeeSorting{
+public class TransactionFeeSorting {
 
-    public static void mergeSort(Trade[] arr, int left, int right) {
+    public static void mergeSort(Asset[] arr, int left, int right) {
         if (left < right) {
             int mid = (left + right) / 2;
             mergeSort(arr, left, mid);
@@ -25,12 +27,12 @@ public class TransactionFeeSorting{
         }
     }
 
-    public static void merge(Trade[] arr, int left, int mid, int right) {
-        Trade[] temp = new Trade[right - left + 1];
+    public static void merge(Asset[] arr, int left, int mid, int right) {
+        Asset[] temp = new Asset[right - left + 1];
         int i = left, j = mid + 1, k = 0;
 
         while (i <= mid && j <= right) {
-            if (arr[i].volume <= arr[j].volume) {
+            if (arr[i].returnRate <= arr[j].returnRate) {
                 temp[k++] = arr[i++];
             } else {
                 temp[k++] = arr[j++];
@@ -45,7 +47,7 @@ public class TransactionFeeSorting{
         }
     }
 
-    public static void quickSort(Trade[] arr, int low, int high) {
+    public static void quickSort(Asset[] arr, int low, int high) {
         if (low < high) {
             int pi = partition(arr, low, high);
             quickSort(arr, low, pi - 1);
@@ -53,71 +55,58 @@ public class TransactionFeeSorting{
         }
     }
 
-    public static int partition(Trade[] arr, int low, int high) {
-        int pivot = arr[high].volume;
+    public static int partition(Asset[] arr, int low, int high) {
+        int pivotIndex = medianOfThree(arr, low, high);
+        Asset pivot = arr[pivotIndex];
+        swap(arr, pivotIndex, high);
+
         int i = low - 1;
 
         for (int j = low; j < high; j++) {
-            if (arr[j].volume > pivot) {
+            if (arr[j].returnRate > pivot.returnRate ||
+                    (arr[j].returnRate == pivot.returnRate &&
+                            arr[j].volatility < pivot.volatility)) {
                 i++;
-                Trade temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
+                swap(arr, i, j);
             }
         }
 
-        Trade temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
-
+        swap(arr, i + 1, high);
         return i + 1;
     }
 
-    public static Trade[] mergeLists(Trade[] a, Trade[] b) {
-        Trade[] result = new Trade[a.length + b.length];
-        int i = 0, j = 0, k = 0;
+    public static int medianOfThree(Asset[] arr, int low, int high) {
+        int mid = (low + high) / 2;
 
-        while (i < a.length && j < b.length) {
-            if (a[i].volume <= b[j].volume) {
-                result[k++] = a[i++];
-            } else {
-                result[k++] = b[j++];
-            }
-        }
+        double a = arr[low].returnRate;
+        double b = arr[mid].returnRate;
+        double c = arr[high].returnRate;
 
-        while (i < a.length) result[k++] = a[i++];
-        while (j < b.length) result[k++] = b[j++];
-
-        return result;
+        if ((a > b && a < c) || (a < b && a > c)) return low;
+        else if ((b > a && b < c) || (b < a && b > c)) return mid;
+        else return high;
     }
 
-    public static int totalVolume(Trade[] arr) {
-        int sum = 0;
-        for (Trade t : arr) {
-            sum += t.volume;
-        }
-        return sum;
+    public static void swap(Asset[] arr, int i, int j) {
+        Asset temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
     }
 
     public static void main(String[] args) {
 
-        Trade[] trades = {
-                new Trade("trade3", 500),
-                new Trade("trade1", 100),
-                new Trade("trade2", 300)
+        Asset[] assets = {
+                new Asset("AAPL", 12, 5),
+                new Asset("TSLA", 8, 7),
+                new Asset("GOOG", 15, 4)
         };
 
-        Trade[] mergeArr = trades.clone();
+        Asset[] mergeArr = assets.clone();
         mergeSort(mergeArr, 0, mergeArr.length - 1);
-        System.out.println("MergeSort: " + Arrays.toString(mergeArr));
+        System.out.println("Merge: " + Arrays.toString(mergeArr));
 
-        Trade[] quickArr = trades.clone();
+        Asset[] quickArr = assets.clone();
         quickSort(quickArr, 0, quickArr.length - 1);
-        System.out.println("QuickSort (desc): " + Arrays.toString(quickArr));
-
-        Trade[] merged = mergeLists(mergeArr, quickArr);
-        System.out.println("Merged List: " + Arrays.toString(merged));
-
-        System.out.println("Total Volume: " + totalVolume(trades));
+        System.out.println("Quick (desc): " + Arrays.toString(quickArr));
     }
 }
