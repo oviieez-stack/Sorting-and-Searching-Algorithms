@@ -2,72 +2,73 @@ import java.util.*;
 
 public class AccountIdLookup {
 
-    public static void linearSearch(String[] arr, String target) {
-        int first = -1, last = -1, comparisons = 0;
+    public static void linearSearch(int[] arr, int target) {
+        int comparisons = 0;
+        boolean found = false;
 
         for (int i = 0; i < arr.length; i++) {
             comparisons++;
-            if (arr[i].equals(target)) {
-                if (first == -1) first = i;
-                last = i;
+            if (arr[i] == target) {
+                found = true;
+                break;
             }
         }
 
         System.out.println("Linear Search:");
-        System.out.println("First: " + first + ", Last: " + last + ", Comparisons: " + comparisons);
+        if (found)
+            System.out.println("Found");
+        else
+            System.out.println("Not found");
+        System.out.println("Comparisons: " + comparisons);
     }
 
-    public static void binarySearch(String[] arr, String target) {
-        int low = 0, high = arr.length - 1, comparisons = 0;
-        int index = -1;
+    public static void binarySearchFloorCeil(int[] arr, int target) {
+        int low = 0, high = arr.length - 1;
+        int floor = -1, ceil = -1, comparisons = 0;
 
         while (low <= high) {
             int mid = (low + high) / 2;
             comparisons++;
 
-            int cmp = arr[mid].compareTo(target);
-
-            if (cmp == 0) {
-                index = mid;
+            if (arr[mid] == target) {
+                floor = ceil = arr[mid];
                 break;
-            } else if (cmp < 0) {
+            } else if (arr[mid] < target) {
+                floor = arr[mid];
                 low = mid + 1;
             } else {
+                ceil = arr[mid];
                 high = mid - 1;
             }
         }
 
-        int count = 0;
+        System.out.println("Binary Search:");
+        System.out.println("Floor: " + floor + ", Ceiling: " + ceil);
+        System.out.println("Comparisons: " + comparisons);
+    }
 
-        if (index != -1) {
-            int left = index, right = index;
+    public static void insertionPoint(int[] arr, int target) {
+        int low = 0, high = arr.length;
 
-            while (left >= 0 && arr[left].equals(target)) {
-                count++;
-                left--;
-            }
-
-            while (right < arr.length && arr[right].equals(target)) {
-                count++;
-                right++;
-            }
-
-            count--;
+        while (low < high) {
+            int mid = (low + high) / 2;
+            if (arr[mid] < target)
+                low = mid + 1;
+            else
+                high = mid;
         }
 
-        System.out.println("Binary Search:");
-        System.out.println("Index: " + index + ", Count: " + count + ", Comparisons: " + comparisons);
+        System.out.println("Insertion Point Index: " + low);
     }
 
     public static void main(String[] args) {
 
-        String[] logs = {"accB", "accA", "accB", "accC"};
+        int[] risks = {10, 25, 50, 100};
 
-        linearSearch(logs, "accB");
+        linearSearch(risks, 30);
 
-        Arrays.sort(logs);
-        System.out.println("Sorted: " + Arrays.toString(logs));
+        binarySearchFloorCeil(risks, 30);
 
-        binarySearch(logs, "accB");
+        insertionPoint(risks, 30);
     }
 }
